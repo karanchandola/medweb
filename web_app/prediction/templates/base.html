@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Disease Predictor{% endblock %}</title>
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #333333;
+            --nav-bg: #ffffff;
+            --nav-text: #333333;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(0,0,0,0.05);
+            --accent-color: #2563eb; /* Blue from image */
+            --button-text: #ffffff;
+            --hover-bg: #f3f4f6;
+            --border-color: #e5e7eb;
+            --input-bg: #ffffff;
+            --sidebar-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --nav-bg: #1e1e1e;
+            --nav-text: #ffffff;
+            --card-bg: #1e1e1e;
+            --card-shadow: rgba(0,0,0,0.3);
+            --accent-color: #3b82f6;
+            --button-text: #ffffff;
+            --hover-bg: rgba(255,255,255,0.1);
+            --border-color: #333333;
+            --input-bg: #2d2d2d;
+            --sidebar-bg: #1e1e1e;
+        }
+
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            background: var(--nav-bg);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 70px;
+            box-sizing: border-box;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .navbar-brand {
+            color: var(--nav-text);
+            font-size: 1.5em;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-icon {
+            background: var(--accent-color);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .navbar-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .nav-link {
+            color: var(--nav-text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95em;
+            padding: 8px 0;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.7;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-color);
+            opacity: 1;
+            background: none;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--nav-text);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Common Styles */
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+        h1, h2, h3, h4, h5, h6 { color: var(--text-color); margin-bottom: 20px; }
+        
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="navbar-brand">
+            <div class="brand-icon"><i class="fas fa-heartbeat"></i></div>
+            <div>
+                <div style="line-height: 1;">MedPredict</div>
+                <div style="font-size: 0.4em; font-weight: 400; opacity: 0.7;">AI Health Assistant</div>
+            </div>
+        </a>
+        <div class="navbar-links">
+            <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{% url 'predict' %}" class="nav-link {% if request.resolver_match.url_name == 'predict' %}active{% endif %}">
+                <i class="fas fa-stethoscope"></i> Check Symptoms
+            </a>
+            <a href="{% url 'chat' %}" class="nav-link {% if 'chat' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-comments"></i> AI Chat
+            </a>
+            <a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+                <i class="fas fa-info-circle"></i> About Us
+            </a>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').classList.remove('fa-moon');
+            document.getElementById('theme-icon').classList.add('fa-sun');
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

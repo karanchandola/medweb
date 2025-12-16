@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - MedPredict{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-header {
+        text-align: center;
+        padding: 60px 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .about-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--accent-color);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 30px;
+    }
+
+    .about-title {
+        font-size: 2.5em;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: var(--text-color);
+    }
+
+    .about-subtitle {
+        font-size: 1.1em;
+        color: var(--text-color);
+        opacity: 0.7;
+        line-height: 1.6;
+    }
+
+    .section-container {
+        max-width: 1100px;
+        margin: 0 auto 60px;
+        padding: 0 20px;
+    }
+
+    .mission-card {
+        background: var(--card-bg);
+        padding: 40px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        border: 1px solid var(--border-color);
+    }
+
+    .section-heading {
+        text-align: center;
+        font-size: 1.8em;
+        font-weight: 700;
+        margin-bottom: 40px;
+        color: var(--text-color);
+    }
+
+    .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 25px;
+    }
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        padding: 25px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .card-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-color);
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .card-icon.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .card-icon.purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .card-icon.orange { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+
+    .card-title {
+        font-size: 1.1em;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-color);
+    }
+
+    .card-desc {
+        font-size: 0.9em;
+        color: var(--text-color);
+        opacity: 0.7;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .feature-list li {
+        font-size: 0.85em;
+        color: var(--text-color);
+        opacity: 0.8;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .feature-list li i {
+        color: #10b981;
+        font-size: 12px;
+    }
+    
+    .feature-list li i.blue-dot {
+        color: var(--accent-color);
+        font-size: 8px;
+    }
+
+    /* Tech Stack */
+    .tech-stack-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        text-align: center;
+    }
+
+    .tech-card {
+        background: var(--card-bg);
+        padding: 30px 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .tech-icon {
+        font-size: 24px;
+        margin-bottom: 15px;
+        display: inline-block;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    /* Disclaimer */
+    .medical-disclaimer {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        border-radius: 12px;
+        padding: 25px;
+        max-width: 1100px;
+        margin: 0 auto 60px;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .medical-disclaimer i {
+        color: #e11d48;
+        font-size: 24px;
+        margin-top: 2px;
+    }
+
+    .medical-disclaimer h4 {
+        color: #9f1239;
+        margin: 0 0 10px 0;
+        font-size: 1.1em;
+    }
+
+    .medical-disclaimer p {
+        color: #881337;
+        margin: 0 0 10px 0;
+        font-size: 0.95em;
+        line-height: 1.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="about-header">
+    <div class="about-icon">
+        <i class="fas fa-heartbeat"></i>
+    </div>
+    <h1 class="about-title">About MedPredict</h1>
+    <p class="about-subtitle">
+        Your intelligent health companion powered by artificial intelligence. We help you understand your symptoms and make informed health decisions.
+    </p>
+</div>
+
+<!-- Mission -->
+<div class="section-container">
+    <div class="mission-card">
+        <h3 style="margin-top: 0; font-size: 1.5em;">Our Mission</h3>
+        <p style="font-size: 1.1em; opacity: 0.8; max-width: 800px; margin: 15px auto 0; line-height: 1.6;">
+            To democratize healthcare information by providing accessible, AI-powered health predictions that help individuals make informed decisions about their wellbeing. We believe everyone deserves quick access to reliable health insights while maintaining complete privacy and control over their personal health data.
+        </p>
+    </div>
+</div>
+
+<!-- Core Features -->
+<div class="section-container">
+    <h2 class="section-heading">Core Features</h2>
+    <div class="grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px;">
+        <div class="info-card">
+            <div class="card-icon"><i class="fas fa-wave-square"></i></div>
+            <h3 class="card-title">Symptom Checker</h3>
+            <p class="card-desc">Our intelligent symptom checker allows you to select from a comprehensive database of medical symptoms organized by categories.</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Browse symptoms by medical categories</li>
+                <li><i class="fas fa-check-circle"></i> Search functionality to quickly find specific symptoms</li>
+                <li><i class="fas fa-check-circle"></i> Detailed descriptions for each symptom</li>
+                <li><i class="fas fa-check-circle"></i> Multi-select interface for comprehensive reporting</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="card-icon"><i class="fas fa-brain"></i></div>
+            <h3 class="card-title">AI-Powered Predictions</h3>
+            <p class="card-desc">Advanced machine learning algorithms analyze your symptoms to provide accurate health predictions with confidence scores.</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Machine learning model trained on medical datasets</li>
+                <li><i class="fas fa-check-circle"></i> Multiple disease predictions with confidence percentages</li>
+                <li><i class="fas fa-check-circle"></i> Severity assessment (Low, Medium, High)</li>
+                <li><i class="fas fa-check-circle"></i> Evidence-based predictions using validated medical data</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="card-icon"><i class="fas fa-heart"></i></div>
+            <h3 class="card-title">Personalized Remedies</h3>
+            <p class="card-desc">Receive tailored treatment recommendations and precautions based on your predicted conditions.</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Home remedies for mild conditions</li>
+                <li><i class="fas fa-check-circle"></i> Lifestyle modifications and preventive measures</li>
+                <li><i class="fas fa-check-circle"></i> Medication suggestions (over-the-counter)</li>
+                <li><i class="fas fa-check-circle"></i> Priority-based recommendations</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="card-icon"><i class="fas fa-comments"></i></div>
+            <h3 class="card-title">Health Chat Assistant</h3>
+            <p class="card-desc">Interactive chat interface where you can ask health-related questions and get instant, informative responses.</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Real-time conversation with AI health assistant</li>
+                <li><i class="fas fa-check-circle"></i> Context-aware responses for common health concerns</li>
+                <li><i class="fas fa-check-circle"></i> Emergency guidance and when to seek medical help</li>
+                <li><i class="fas fa-check-circle"></i> Download chat history for personal records</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Platform Pages -->
+<div class="section-container">
+    <h2 class="section-heading">Platform Pages</h2>
+    <div class="grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px;">
+        <div class="info-card">
+            <div class="card-icon" style="background: #2563eb; color: white;"><i class="fas fa-wave-square"></i></div>
+            <h3 class="card-title">Home Page</h3>
+            <p class="card-desc">Welcome page introducing the platform</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-circle blue-dot"></i> Overview of AI-powered health prediction system</li>
+                <li><i class="fas fa-circle blue-dot"></i> Key features and benefits highlighted</li>
+                <li><i class="fas fa-circle blue-dot"></i> Step-by-step guide on how the system works</li>
+                <li><i class="fas fa-circle blue-dot"></i> Medical disclaimer and safety information</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="card-icon" style="background: #2563eb; color: white;"><i class="fas fa-search"></i></div>
+            <h3 class="card-title">Symptom Checker</h3>
+            <p class="card-desc">Interactive symptom selection interface</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-circle blue-dot"></i> Categorized symptom database with 35+ symptoms</li>
+                <li><i class="fas fa-circle blue-dot"></i> Advanced search and filtering capabilities</li>
+                <li><i class="fas fa-circle blue-dot"></i> Real-time symptom counter and selection tracking</li>
+                <li><i class="fas fa-circle blue-dot"></i> Detailed symptom descriptions for accurate reporting</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="card-icon" style="background: #2563eb; color: white;"><i class="fas fa-chart-bar"></i></div>
+            <h3 class="card-title">Results Dashboard</h3>
+            <p class="card-desc">Comprehensive health prediction results</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-circle blue-dot"></i> Top disease predictions with confidence scores</li>
+                <li><i class="fas fa-circle blue-dot"></i> Severity assessment and risk indicators</li>
+                <li><i class="fas fa-circle blue-dot"></i> Personalized remedy recommendations</li>
+                <li><i class="fas fa-circle blue-dot"></i> Important precautions and next steps</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="card-icon" style="background: #2563eb; color: white;"><i class="fas fa-comment-alt"></i></div>
+            <h3 class="card-title">Health Chat</h3>
+            <p class="card-desc">Conversational health assistant</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-circle blue-dot"></i> Real-time chat with AI health assistant</li>
+                <li><i class="fas fa-circle blue-dot"></i> Privacy-focused with chat deletion options</li>
+                <li><i class="fas fa-circle blue-dot"></i> Download conversations for personal records</li>
+                <li><i class="fas fa-circle blue-dot"></i> Emergency guidance and medical advice</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy & Security -->
+<div class="section-container">
+    <h2 class="section-heading">Privacy & Security</h2>
+    <div class="grid-3">
+        <div class="info-card" style="text-align: center;">
+            <div class="card-icon green" style="margin: 0 auto 15px;"><i class="fas fa-shield-alt"></i></div>
+            <h3 class="card-title">Privacy First</h3>
+            <p class="card-desc">No persistent data storage - your health information stays private</p>
+        </div>
+        <div class="info-card" style="text-align: center;">
+            <div class="card-icon green" style="margin: 0 auto 15px;"><i class="fas fa-download"></i></div>
+            <h3 class="card-title">Export Control</h3>
+            <p class="card-desc">Download your chat history and results for personal record-keeping</p>
+        </div>
+        <div class="info-card" style="text-align: center;">
+            <div class="card-icon green" style="margin: 0 auto 15px;"><i class="fas fa-trash-alt"></i></div>
+            <h3 class="card-title">Data Control</h3>
+            <p class="card-desc">Delete conversations and clear data whenever you want</p>
+        </div>
+    </div>
+</div>
+
+<!-- Technology Stack -->
+<div class="section-container">
+    <h2 class="section-heading">Technology Stack</h2>
+    <div class="tech-stack-grid">
+        <div class="tech-card">
+            <div class="tech-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;"><i class="fas fa-code"></i></div>
+            <h3 class="card-title">Frontend</h3>
+            <p class="card-desc">HTML5, CSS3, JavaScript</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fas fa-brain"></i></div>
+            <h3 class="card-title">AI/ML</h3>
+            <p class="card-desc">Scikit-learn, Google Gemini</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fas fa-server"></i></div>
+            <h3 class="card-title">Backend</h3>
+            <p class="card-desc">Django, Python</p>
+        </div>
+        <div class="tech-card">
+            <div class="tech-icon" style="background: rgba(249, 115, 22, 0.1); color: #f97316;"><i class="fas fa-paint-brush"></i></div>
+            <h3 class="card-title">UX/UI</h3>
+            <p class="card-desc">Responsive, Accessible Design</p>
+        </div>
+    </div>
+</div>
+
+<!-- Disclaimer -->
+<div class="medical-disclaimer">
+    <i class="fas fa-shield-alt"></i>
+    <div>
+        <h4>Important Medical Disclaimer</h4>
+        <p><strong>MedPredict is for informational purposes only</strong> and should never replace professional medical advice, diagnosis, or treatment. Our AI predictions are based on general medical knowledge and should not be considered as definitive medical diagnoses.</p>
+        <p><strong>Always consult with qualified healthcare professionals</strong> for proper medical evaluation and treatment. In case of medical emergencies, contact your local emergency services immediately.</p>
+        <p><strong>We do not store your personal health information</strong> - all data processing happens locally, and you have complete control over your information through our download and delete features.</p>
+    </div>
+</div>
+{% endblock %}

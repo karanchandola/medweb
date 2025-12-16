@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Doctor Chat - Disease Predictor{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        height: 75vh;
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px var(--card-shadow);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+    
+    .chat-header {
+        padding: 15px 20px;
+        background: var(--bg-color);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .action-btn {
+        background: none;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
+    .action-btn:hover {
+        background: rgba(0,0,0,0.05);
+    }
+    .action-btn.delete:hover {
+        background: #ffebee;
+        color: #d32f2f;
+        border-color: #ffcdd2;
+    }
+
+    .chat-history {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: var(--bg-color);
+    }
+    .message {
+        margin-bottom: 15px;
+        max-width: 80%;
+        padding: 12px 18px;
+        border-radius: 18px;
+        line-height: 1.6;
+        position: relative;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .message.user {
+        background-color: var(--accent-color);
+        color: var(--button-text);
+        align-self: flex-end;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+    .message.assistant {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        align-self: flex-start;
+        margin-right: auto;
+        border-bottom-left-radius: 4px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .chat-input-area {
+        padding: 20px;
+        background: var(--card-bg);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 10px;
+    }
+    .chat-input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 24px;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s;
+        background: var(--input-bg);
+        color: var(--text-color);
+    }
+    .chat-input:focus {
+        border-color: var(--accent-color);
+    }
+    .send-btn {
+        background-color: var(--accent-color);
+        color: var(--button-text);
+        border: none;
+        padding: 10px 25px;
+        border-radius: 24px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: opacity 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .send-btn:hover {
+        opacity: 0.9;
+    }
+    
+    .api-key-modal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    .modal-content {
+        background: var(--card-bg);
+        padding: 30px;
+        border-radius: 12px;
+        width: 400px;
+        text-align: center;
+        color: var(--text-color);
+    }
+    
+    /* Markdown Styles */
+    .markdown-content p { margin: 0 0 10px 0; }
+    .markdown-content p:last-child { margin-bottom: 0; }
+    .markdown-content ul, .markdown-content ol { margin: 5px 0 10px 20px; padding: 0; }
+    .markdown-content li { margin-bottom: 5px; }
+    .markdown-content strong { font-weight: 600; }
+
+    .chip {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: all 0.2s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .chip:hover {
+        background: var(--hover-bg);
+        transform: translateY(-2px);
+        border-color: var(--accent-color);
+    }
+
+    /* Custom Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+    }
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .modal-box {
+        background: var(--card-bg);
+        padding: 30px;
+        border-radius: 15px;
+        width: 350px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transform: scale(0.8);
+        transition: all 0.3s;
+        border: 1px solid var(--border-color);
+    }
+    .modal-overlay.active .modal-box {
+        transform: scale(1);
+    }
+    .modal-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 25px;
+    }
+    .btn-cancel {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .btn-cancel:hover {
+        background: var(--hover-bg);
+    }
+    .btn-confirm-delete {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    .btn-confirm-delete:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Alert Styles */
+    .alert {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="main-container">
+        <div class="chat-header">
+            <h2 style="margin: 0; font-size: 1.2em;">
+                <i class="fas fa-robot"></i> AI Doctor
+            </h2>
+            <div class="chat-actions">
+                <button onclick="downloadChat()" class="action-btn" title="Download Chat">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button onclick="openDeleteModal()" class="action-btn delete" title="Delete Current Chat">
+                    <i class="fas fa-trash-alt"></i> Delete Chat
+                </button>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div class="messages-container" style="padding: 10px 20px;">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Custom Delete Confirmation Modal -->
+        <div class="modal-overlay" id="deleteModal">
+            <div class="modal-box">
+                <div style="width: 60px; height: 60px; background: #ffebee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fas fa-trash-alt" style="font-size: 24px; color: #dc3545;"></i>
+                </div>
+                <h3 style="margin: 0 0 10px; color: var(--text-color);">Delete Conversation?</h3>
+                <p style="margin: 0; color: var(--text-color); opacity: 0.7;">This action cannot be undone. Are you sure you want to delete this chat?</p>
+                <div class="modal-actions">
+                    <button onclick="closeDeleteModal()" class="btn-cancel">Cancel</button>
+                    <a href="{% url 'delete_current_chat' %}" class="btn-confirm-delete">
+                        <i class="fas fa-trash-alt"></i> Yes, Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% if not api_key_set %}
+        <div class="api-key-modal" id="apiKeyModal">
+            <div class="modal-content">
+                <h2>Enter Gemini API Key</h2>
+                <p>To use the chat feature, please provide your Google Gemini API Key.</p>
+                <form method="post" action="{% url 'set_api_key' %}">
+                    {% csrf_token %}
+                    <input type="password" name="api_key" class="chat-input" style="width: 100%; margin-bottom: 15px; box-sizing: border-box;" placeholder="AIza..." required>
+                    <button type="submit" class="send-btn" style="width: 100%; justify-content: center;">Start Chatting</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="chat-history" id="chatHistory">
+            {% if not chat_history %}
+            <div class="suggestion-chips-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.8;">
+                <i class="fas fa-user-md" style="font-size: 3em; color: var(--border-color); margin-bottom: 20px;"></i>
+                <p style="color: var(--text-color); margin-bottom: 20px;">How are you feeling today?</p>
+                <div class="chips" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <button type="button" class="chip" onclick="sendSuggestion('I have a severe headache')">🤕 I have a headache</button>
+                    <button type="button" class="chip" onclick="sendSuggestion('I feel feverish and cold')">🤒 I feel feverish</button>
+                    <button type="button" class="chip" onclick="sendSuggestion('My stomach hurts a lot')">🤢 Stomach pain</button>
+                    <button type="button" class="chip" onclick="sendSuggestion('I have a skin rash and itching')">🧴 Skin rash</button>
+                </div>
+            </div>
+            {% endif %}
+
+            {% for msg in chat_history %}
+                <div class="message {{ msg.role }} markdown-content">{{ msg.content }}</div>
+            {% endfor %}
+        </div>
+        
+        <form method="post" class="chat-input-area" id="chatForm">
+            {% csrf_token %}
+            <input type="text" name="message" id="messageInput" class="chat-input" placeholder="Describe your symptoms..." required autocomplete="off">
+            <button type="submit" class="send-btn">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    function openDeleteModal() {
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    function sendSuggestion(text) {
+        const input = document.getElementById('messageInput');
+        const form = document.getElementById('chatForm');
+        input.value = text;
+        form.requestSubmit();
+    }
+
+    // Render Markdown
+    document.querySelectorAll('.markdown-content').forEach(el => {
+        const rawContent = el.textContent.trim();
+        el.innerHTML = marked.parse(rawContent);
+    });
+
+    // Auto-scroll
+    var chatHistory = document.getElementById("chatHistory");
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // Disable send button
+    document.querySelector('form.chat-input-area').addEventListener('submit', function(e) {
+        var btn = this.querySelector('button[type="submit"]');
+        var input = this.querySelector('input[name="message"]');
+        
+        if (input.value.trim() === "") {
+            e.preventDefault();
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'not-allowed';
+    });
+
+    // Download Chat Function
+    function downloadChat() {
+        const messages = document.querySelectorAll('.message');
+        if (messages.length === 0) {
+            alert("The chat is empty. Nothing to download.");
+            return;
+        }
+
+        let chatText = "AI Doctor Chat History\nDate: " + new Date().toLocaleString() + "\n\n";
+        
+        messages.forEach(msg => {
+            let role = msg.classList.contains('user') ? "You" : "Doctor";
+            let content = msg.innerText;
+            chatText += `${role}: ${content}\n\n-------------------\n\n`;
+        });
+
+        const blob = new Blob([chatText], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'medical_chat_history.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+</script>
+{% endblock %}
