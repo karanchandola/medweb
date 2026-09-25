@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis Results - MedPredict{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 30px;
+    }
+    .page-title {
+        font-size: 2em;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    .page-date {
+        margin: 2px 0;
+        color: var(--text-color);
+        opacity: 0.6;
+        font-size: 0.9em;
+    }
+
+    .layout-container {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+    }
+
+    .section-title {
+        font-size: 1.2em;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: var(--text-color);
+    }
+
+    /* Symptoms Chips */
+    .symptoms-container {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 20px;
+    }
+    .symptom-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .chip {
+        background: #eff6ff;
+        color: var(--accent-color);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 500;
+    }
+    [data-theme="dark"] .chip {
+        background: rgba(59, 130, 246, 0.2);
+    }
+
+    /* Disease Cards */
+    .disease-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+    .disease-card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .card-header {
+        padding: 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .card-header:hover {
+        background: var(--hover-bg);
+    }
+
+    .disease-info {
+        flex: 1;
+        padding-right: 20px;
+    }
+    .disease-name {
+        font-size: 1.3em;
+        font-weight: 700;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .confidence-score {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: var(--text-color);
+        text-align: right;
+        min-width: 80px;
+    }
+    .confidence-label {
+        font-size: 0.6em;
+        opacity: 0.6;
+        display: block;
+        font-weight: 400;
+    }
+
+    .severity-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+    .severity-low { background: #d1fae5; color: #065f46; }
+    .severity-medium { background: #fef3c7; color: #92400e; }
+    .severity-high { background: #fee2e2; color: #b91c1c; }
+
+    .progress-bar-bg {
+        background: #e5e7eb;
+        height: 6px;
+        border-radius: 3px;
+        margin-top: 15px;
+        width: 100%;
+        max-width: 300px;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 1s ease-out;
+    }
+    .progress-high { background: #ef4444; }
+    .progress-medium { background: #f59e0b; }
+    .progress-low { background: #10b981; }
+    .progress-unknown { background: #9ca3af; }
+
+    .card-content {
+        padding: 0 25px 25px;
+        display: none;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-color);
+    }
+    .card-content.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 300px;
+        
+        
+    }
+    .sidebar-card {
+        width: 100%;
+        background: var(--card-bg);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        margin-bottom: 20px;
+
+    }
+    
+    .action-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 10px;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1em;
+    }
+    .btn-primary {
+        display: block;
+        width: 100%;
+        background: var(--accent-color);
+        color: white;
+        padding: 12px 0 ;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 10px;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1em;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+    }
+    .btn-outline:hover { background: var(--hover-bg); }
+
+    .precaution-list {
+        margin: 0;
+        padding-left: 20px;
+        font-size: 0.9em;
+        line-height: 1.6;
+        color: var(--text-color);
+        opacity: 0.8;
+    }
+    .precaution-list li { margin-bottom: 8px; }
+
+    .remedy-box {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+    }
+    [data-theme="dark"] .remedy-box {
+        background: rgba(21, 128, 61, 0.1);
+        border-color: rgba(21, 128, 61, 0.3);
+    }
+    .remedy-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .remedy-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        font-size: 0.95em;
+    }
+    .remedy-item i { color: #16a34a; }
+
+    .allergy-input {
+        width: 100%;
+        padding: 12px 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 50px;
+        margin-bottom: 0;
+        box-sizing: border-box;
+        background: var(--input-bg);
+        color: var(--text-color);
+        outline: none;
+    }
+    .allergy-input:focus {
+        border-color: var(--accent-color);
+    }
+    .btn-rounded {
+        border-radius: 50px !important;
+        padding-left: 25px !important;
+        padding-right: 25px !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{% url 'predict' %}" style="text-decoration: none; color: var(--text-color); opacity: 0.6; font-size: 0.9em; margin-bottom: 10px; display: inline-block;">
+        <i class="fas fa-chevron-left"></i> Back to Symptoms
+    </a>
+    <h1 class="page-title">Your Health Prediction</h1>
+    <div class="page-date"><i class="far fa-calendar-alt"></i> {% now "F j, Y" %}</div>
+</div>
+
+<div class="layout-container">
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="section-title">Your Symptoms</div>
+        <div class="symptoms-container">
+            <div class="symptom-chips">
+                {% for symptom in selected_symptoms %}
+                <span class="chip">{{ symptom }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-title">Possible Conditions</div>
+        {% if predictions %}
+            {% for pred in predictions %}
+            <div class="disease-card">
+                <div class="card-header" onclick="toggleCard('{{ forloop.counter }}')">
+                    <div class="disease-info">
+                        <div class="disease-name">
+                            {% if forloop.first %}<i class="fas fa-check-circle" style="color: #16a34a;"></i>{% else %}<i class="fas fa-info-circle" style="color: #f59e0b;"></i>{% endif %}
+                            {{ pred.disease }}
+                            {% if forloop.first %}<span style="font-size: 0.6em; background: #2563eb; color: white; padding: 2px 8px; border-radius: 10px; margin-left: 10px;">Most Likely</span>{% endif %}
+                        </div>
+                        <div class="markdown-description" style="font-size: 0.9em; opacity: 0.8; margin-bottom: 10px;">
+                            {{ pred.description }}
+                        </div>
+                        
+                        {% with severity=pred.severity|default:"Unknown"|lower %}
+                        <span class="severity-badge severity-{{ severity }}">
+                            {{ severity|title }} Severity
+                        </span>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill progress-{{ severity }}" style="width: {{ pred.probability }}%;"></div>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="confidence-score">
+                        {{ pred.probability }}%
+                        <span class="confidence-label">confidence</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.5em; opacity: 0.5; margin-top: 10px; display: block; text-align: center;"></i>
+                    </div>
+                </div>
+
+                <div class="card-content" id="card-content-{{ forloop.counter }}">
+                    <div style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 10px;"><i class="fas fa-leaf" style="color: #16a34a;"></i> Home Remedies</h4>
+                        <div class="remedy-box">
+                            <ul class="remedy-list" id="remedy-list-{{ forloop.counter }}">
+                                {% for remedy in pred.remedies %}
+                                <li class="remedy-item"><i class="fas fa-check"></i> <span class="markdown-text">{{ remedy }}</span></li>
+                                {% empty %}
+                                <li class="remedy-item">No specific remedies available.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                        <h5 style="margin-bottom: 15px;"><i class="fas fa-allergies" style="color: #ef4444;"></i> Update for Allergies</h5>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" id="allergy-input-{{ forloop.counter }}" class="allergy-input" placeholder="Enter allergies (e.g., peanuts, dairy)...">
+                            <button class="btn-primary btn-rounded" style="width: auto; margin-bottom: 0; white-space: nowrap;" onclick="checkAllergies('{{ forloop.counter }}', '{{ pred.disease }}')">Update</button>
+                        </div>
+                        <div id="allergy-response-{{ forloop.counter }}" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="disease-card" style="padding: 30px; text-align: center;">
+                <p>No predictions could be made based on the selected symptoms.</p>
+            </div>
+        {% endif %}
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <h3 class="section-title" style="font-size: 1em;">Quick Actions</h3>
+            <a href="{% url 'predict' %}" class="btn-primary">New Symptom Check</a>
+            <button onclick="downloadReport()" class="action-btn btn-outline">Download Report</button>
+        </div>
+
+        <div class="sidebar-card">
+            <h3 class="section-title" style="font-size: 1em;">Important Precautions</h3>
+            <ul class="precaution-list">
+                <li>Monitor symptoms for worsening.</li>
+                <li>Stay hydrated and get plenty of rest.</li>
+                <li>Avoid close contact with others to prevent spread.</li>
+                <li>Seek medical attention if symptoms persist beyond 7-10 days.</li>
+            </ul>
+        </div>
+
+        <div class="sidebar-card" style="background: #fef2f2; border-color: #fee2e2;">
+            <h3 class="section-title" style="font-size: 1em; color: #b91c1c;"><i class="fas fa-exclamation-triangle"></i> Medical Disclaimer</h3>
+            <p style="font-size: 0.85em; color: #b91c1c; opacity: 0.8; line-height: 1.5; margin: 0;">
+                This prediction is for informational purposes only. Please consult a healthcare professional for proper diagnosis and treatment.
+            </p>
+        </div>
+    </aside>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    // Render Markdown
+    document.querySelectorAll('.markdown-description').forEach(el => {
+        el.innerHTML = marked.parse(el.textContent.trim());
+    });
+    
+    // Render Markdown for remedies
+    document.querySelectorAll('.markdown-text').forEach(el => {
+        el.innerHTML = marked.parseInline(el.textContent.trim());
+    });
+
+    function toggleCard(id) {
+        const content = document.getElementById(`card-content-${id}`);
+        content.classList.toggle('show');
+    }
+
+    async function checkAllergies(id, disease) {
+        const input = document.getElementById(`allergy-input-${id}`);
+        const responseDiv = document.getElementById(`allergy-response-${id}`);
+        const allergies = input.value.trim();
+        
+        if (!allergies) return;
+        
+        responseDiv.innerHTML = '<div style="font-size: 0.9em; color: var(--text-color);"><i class="fas fa-spinner fa-spin"></i> Finding safe remedies...</div>';
+        
+        try {
+            const formData = new FormData();
+            formData.append('disease', disease);
+            formData.append('allergies', allergies);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            const response = await fetch("{% url 'check_allergy_remedies' %}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const listHtml = data.remedies.map(r => `<li class="remedy-item"><i class="fas fa-check"></i> ${r}</li>`).join('');
+                document.getElementById(`remedy-list-${id}`).innerHTML = listHtml;
+                responseDiv.innerHTML = '<div style="color: #16a34a; font-size: 0.9em;"><i class="fas fa-check-circle"></i> Remedies updated!</div>';
+                setTimeout(() => responseDiv.innerHTML = '', 3000);
+            } else {
+                responseDiv.innerHTML = `<div style="color: #dc3545; font-size: 0.9em;">Error: ${data.error}</div>`;
+            }
+        } catch (e) {
+            responseDiv.innerHTML = `<div style="color: #dc3545; font-size: 0.9em;">Failed to update. Try again.</div>`;
+        }
+    }
+
+    function downloadReport() {
+        const date = new Date().toLocaleDateString();
+        let text = `MEDPREDICT HEALTH REPORT\nDate: ${date}\n\n`;
+        
+        // Symptoms
+        const symptoms = Array.from(document.querySelectorAll('.chip')).map(c => c.textContent).join(', ');
+        text += `REPORTED SYMPTOMS:\n${symptoms}\n\n`;
+        
+        // Predictions
+        text += `POSSIBLE CONDITIONS:\n`;
+        document.querySelectorAll('.disease-card').forEach(card => {
+            const name = card.querySelector('.disease-name').textContent.trim();
+            const prob = card.querySelector('.confidence-score').textContent.trim().split('%')[0] + '%';
+            text += `- ${name} (${prob} confidence)\n`;
+        });
+        
+        text += `\nDISCLAIMER: This is an AI-generated report and not a medical diagnosis.`;
+        
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'MedPredict_Report.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+</script>
+{% endblock %}

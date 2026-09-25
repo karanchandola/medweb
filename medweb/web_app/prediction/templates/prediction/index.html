@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Symptoms - MedPredict{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 30px;
+    }
+    .page-title {
+        font-size: 2em;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    .page-subtitle {
+        color: var(--text-color);
+        opacity: 0.7;
+    }
+
+    .layout-container {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 280px;
+        flex-shrink: 0;
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        position: sticky;
+        top: 90px;
+    }
+    
+    .search-wrapper {
+        position: relative;
+        margin-bottom: 25px;
+    }
+    .search-input {
+        width: 100%;
+        padding: 12px 15px 12px 40px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+        background: var(--input-bg);
+        color: var(--text-color);
+    }
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+
+    .category-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .category-btn {
+        text-align: left;
+        background: none;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--text-color);
+        font-size: 14px;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .category-btn:hover {
+        background: var(--hover-bg);
+    }
+    .category-btn.active {
+        background: #eff6ff;
+        color: var(--accent-color);
+        font-weight: 500;
+    }
+    [data-theme="dark"] .category-btn.active {
+        background: rgba(59, 130, 246, 0.2);
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+    }
+    .content-header {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 12px 12px 0 0;
+        border: 1px solid var(--border-color);
+        border-bottom: none;
+    }
+    .symptoms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 15px;
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 0 0 12px 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .symptom-card {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        min-height: 100px;
+    }
+    .symptom-card:hover {
+        border-color: var(--accent-color);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .symptom-card.selected {
+        border-color: var(--accent-color);
+        background: #eff6ff;
+    }
+    [data-theme="dark"] .symptom-card.selected {
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .checkbox-custom {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #d1d5db;
+        border-radius: 4px;
+        flex-shrink: 0;
+        margin-top: 2px;
+        position: relative;
+    }
+    .symptom-card.selected .checkbox-custom {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+    .symptom-card.selected .checkbox-custom::after {
+        content: '✓';
+        color: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 14px;
+    }
+
+    .symptom-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .symptom-info h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: capitalize;
+        color: var(--text-color);
+    }
+    
+    .symptom-desc {
+        font-size: 13px;
+        color: var(--text-color);
+        opacity: 0.7;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    .symptom-tag {
+        font-size: 11px;
+        background: var(--hover-bg);
+        padding: 4px 10px;
+        border-radius: 12px;
+        color: var(--text-color);
+        opacity: 0.8;
+        display: inline-block;
+        align-self: flex-start;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    /* Bottom Action Bar */
+    .action-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--card-bg);
+        padding: 15px 40px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+        z-index: 900;
+        border-top: 1px solid var(--border-color);
+    }
+    .selection-count {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+    .btn-submit {
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 16px;
+        transition: opacity 0.2s;
+    }
+    .btn-submit:hover {
+        opacity: 0.9;
+    }
+    .btn-submit:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    /* Hide actual checkbox */
+    .symptom-checkbox {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{% url 'home' %}" style="text-decoration: none; color: var(--text-color); opacity: 0.6; font-size: 0.9em; margin-bottom: 10px; display: inline-block;">
+        <i class="fas fa-chevron-left"></i> Back to Home
+    </a>
+    <h1 class="page-title">Select Your Symptoms</h1>
+    <p class="page-subtitle">Choose all symptoms you're currently experiencing. The more accurate your selection, the better our prediction.</p>
+</div>
+
+<form method="post" id="symptomForm">
+    {% csrf_token %}
+    <div class="layout-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="symptomSearch" class="search-input" placeholder="Search symptoms...">
+            </div>
+
+            <div class="category-list">
+                <h4 style="margin: 0 0 10px 0; font-size: 0.9em; text-transform: uppercase; opacity: 0.5;">Categories</h4>
+                <button type="button" class="category-btn active" onclick="filterCategory('all', this)">
+                    All Categories
+                </button>
+                {% for category, symptoms in categorized_symptoms.items %}
+                <button type="button" class="category-btn" onclick="filterCategory('{{ category }}', this)">
+                    {{ category }}
+                    <span style="background: var(--hover-bg); padding: 2px 6px; border-radius: 10px; font-size: 0.8em;">{{ symptoms|length }}</span>
+                </button>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- Main Grid -->
+        <main class="main-content">
+            <div class="content-header">
+                <h3 style="margin: 0; font-size: 1.1em;">Available Symptoms</h3>
+                <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.6;" id="symptomCountLabel">Showing all symptoms</p>
+            </div>
+            
+            <div class="symptoms-grid" id="symptomsGrid">
+                {% for category, symptoms in categorized_symptoms.items %}
+                    {% for symptom in symptoms %}
+                    <label class="symptom-card" data-category="{{ category }}" data-name="{{ symptom.name }}">
+                        <input type="checkbox" name="symptoms" value="{{ symptom.id }}" class="symptom-checkbox" onchange="updateSelection(this)">
+                        <div class="checkbox-custom"></div>
+                        <div class="symptom-info">
+                            <h4>{{ symptom.name }}</h4>
+                            <p class="symptom-desc">{{ symptom.description }}</p>
+                            <span class="symptom-tag">{{ category }}</span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Sticky Footer -->
+    <div class="action-bar">
+        <div class="selection-count">
+            <i class="fas fa-info-circle" style="color: var(--accent-color); margin-right: 5px;"></i>
+            <span id="selectedCount">0</span> symptoms selected
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn" disabled>
+            Get Prediction
+        </button>
+    </div>
+</form>
+
+<script>
+    function filterCategory(category, btn) {
+        // Update active button
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Filter grid
+        const cards = document.querySelectorAll('.symptom-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            if (category === 'all' || card.dataset.category === category) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        document.getElementById('symptomCountLabel').textContent = category === 'all' 
+            ? 'Showing all symptoms' 
+            : `Showing ${visibleCount} symptoms in ${category}`;
+    }
+
+    // Search Functionality
+    document.getElementById('symptomSearch').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.symptom-card');
+        
+        cards.forEach(card => {
+            const name = card.dataset.name.toLowerCase();
+            if (name.includes(term)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Selection Logic
+    function updateSelection(checkbox) {
+        const card = checkbox.closest('.symptom-card');
+        if (checkbox.checked) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+
+        const count = document.querySelectorAll('.symptom-checkbox:checked').length;
+        document.getElementById('selectedCount').textContent = count;
+        
+        const btn = document.getElementById('submitBtn');
+        if (count > 0) {
+            btn.disabled = false;
+            btn.textContent = `Get Prediction (${count} symptoms)`;
+        } else {
+            btn.disabled = true;
+            btn.textContent = 'Get Prediction';
+        }
+    }
+</script>
+{% endblock %}
